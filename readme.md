@@ -987,6 +987,37 @@ magic -T sky130A.tech sky130_inv.mag &
 
 <img width="1125" height="448" alt="Screenshot 2025-12-12 025729" src="https://github.com/user-attachments/assets/a0250cf5-d6fa-45b4-91da-fc88b9a1cae0" />
 
+<img width="1157" height="439" alt="Screenshot 2025-12-12 030102" src="https://github.com/user-attachments/assets/8f945df3-f494-48a8-b8b9-e59d2ed9f01e" />
+
+
+`````
+# Check current directory
+pwd
+
+# Extraction command to extract to .ext format
+extract all
+
+# Before converting ext to spice this command enable the parasitic extraction also
+ext2spice cthresh 0 rthresh 0
+
+# Converting to ext to spice
+ext2spice
+`````
+
+<img width="847" height="246" alt="image" src="https://github.com/user-attachments/assets/eae0b4db-fbb4-4b98-8630-8f85eaed4269" />
+
+<img width="791" height="586" alt="image" src="https://github.com/user-attachments/assets/0b28d7e6-fd7d-4aba-89d0-2113c273fd99" />
+````
+# Command to directly load spice file for simulation to ngspice
+ngspice sky130_inv.spice
+
+# Now that we have entered ngspice with the simulation spice file loaded we just have to load the plot
+plot y vs time a
+`````
+<img width="1183" height="643" alt="image" src="https://github.com/user-attachments/assets/0b8d0da4-4524-43d3-9e97-248bfa96ecd2" />
+
+
+
 
 
 

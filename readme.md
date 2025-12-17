@@ -754,7 +754,262 @@ Number of cells:              15762
  flop ratio=9.77%
 
  ### Good floorplan vs bad floorplan and introduction to library cells
- 
+
+ # Utilization factor and aspect ratio
+ <img width="533" height="193" alt="image" src="https://github.com/user-attachments/assets/d3391055-df35-4dfb-87c2-ad2e8ba33864" />
+
+<img width="438" height="70" alt="image" src="https://github.com/user-attachments/assets/8ba268f3-bd60-488e-b38b-3bb4c20236eb" />
+
+<img width="624" height="206" alt="image" src="https://github.com/user-attachments/assets/2b2c53a5-2ffe-44b9-9eb8-583fd730f02a" />
+
+ <img width="624" height="251" alt="image" src="https://github.com/user-attachments/assets/a96ef999-8cac-492b-95b2-c98e28131e69" />
+
+<img width="624" height="211" alt="image" src="https://github.com/user-attachments/assets/c2b2d984-e3a8-49c8-af45-565b372c7fa5" />
+
+<img width="380" height="458" alt="image" src="https://github.com/user-attachments/assets/bdb5a461-d5ca-4503-808c-496ec0141864" />
+
+Utilization factor= area occupied by the netlist/total area of the core.
+
+ = 4x1 (sq unit)/2 unit x 2 unit= 4 sq unit/ 4 sq unit .
+
+ Utilization factor=1
+
+ Aspect ration =height/width
+
+  Aspect=1 (signifies chip is sq shape)
+
+<img width="314" height="172" alt="image" src="https://github.com/user-attachments/assets/81af3dba-a284-4dde-ac5f-5e3b6d2c51db" />
+
+<img width="378" height="81" alt="image" src="https://github.com/user-attachments/assets/0a75a0ce-12fc-41ed-b49e-71082e5011c6" />
+
+Uf=0.5
+
+<img width="250" height="38" alt="image" src="https://github.com/user-attachments/assets/ae91704c-c276-427f-b339-23efe64217fb" />
+
+# Concept of pre-placed cells
+
+## Preplaced Cells in ASIC Physical Design
+
+### What are Preplaced Cells?
+Preplaced cells are **standard cells or macros whose physical locations are fixed before placement**.  
+The placer is **not allowed to move** these cells during the automated placement stage.
+
+They are commonly used when:
+- Certain logic must remain at a fixed position
+- Timing, power, or routing constraints demand fixed locations
+- The design is divided into predefined blocks or regions
+
+---
+
+### Why Preplaced Cells are Needed
+
+In large designs, the entire combinational logic is not placed freely.  
+Instead, designers often:
+- Split logic into **functional blocks**
+- Fix important cells at known locations
+- Allow remaining cells to be placed around them
+
+This improves:
+- Timing predictability
+- Floorplanning control
+- Congestion management
+
+---
+
+### Explanation Using the Diagram
+<img width="624" height="319" alt="image" src="https://github.com/user-attachments/assets/218d4d90-3358-48be-a58f-6104a81798b4" />
+
+
+#### 1. Original Combinational Logic
+All logic gates (A1–A8) initially form a **single combinational cloud**.
+
+Combinational Logic → A1, A2, A3, A4, A5, A6, A7, A8
+
+
+---
+
+#### 2. Cut Definition
+Logical cuts (`cut1`, `cut2`) divide the design into regions.
+
+- These cuts determine **which cells belong to which block**
+- After cutting, some cells are assigned fixed regions
+
+---
+
+#### 3. Block Formation
+The design is divided into multiple blocks:
+
+Block 1: A1, A2, A3, A4
+Block 2: A5, A6, A7, A8
+
+
+Cells inside each block are **preplaced**:
+- Their X/Y coordinates are fixed
+- The placer cannot relocate them
+
+---
+
+#### 4. Routing Between Preplaced Blocks
+Only the **interconnect routing** between blocks is optimized later.
+
+- Internal block structure remains unchanged
+- Global routing must respect fixed cell positions
+
+---
+
+### Key Characteristics of Preplaced Cells
+
+- Fixed physical location
+- Not moved by placement algorithms
+- Used for macros, hard IPs, critical logic
+- Common in hierarchical and block-based designs
+
+---
+
+### Examples of Preplaced Cells
+- SRAM macros
+- PLLs and analog IPs
+- Clock gating cells
+- I/O interface logic
+- Timing-critical datapath elements
+
+---
+
+### Preplaced Cells in OpenLane
+
+In OpenLane, preplaced cells can be defined using:
+- DEF files
+- Floorplanning constraints
+- Manual macro placement scripts
+
+These cells are honored throughout:
+- Placement
+- Clock Tree Synthesis (CTS)
+- Routing
+
+---
+
+### Summary
+
+| Aspect            | Preplaced Cells |
+|-------------------|-----------------|
+| Movable by placer | ❌ No |
+| Location fixed    | ✅ Yes |
+| Used for macros   | ✅ Yes |
+| Improves control  | ✅ Yes |
+
+Preplaced cells provide **deterministic physical structure**, enabling better timing closure and predictable layouts in complex ASIC designs.
+
+
+<img width="562" height="550" alt="image" src="https://github.com/user-attachments/assets/ca7867d2-9065-4055-a44a-7d7a01c0fc40" />
+
+<img width="588" height="290" alt="image" src="https://github.com/user-attachments/assets/eb695724-8bbf-4c28-beb8-594038bab50b" />
+
+<img width="624" height="127" alt="image" src="https://github.com/user-attachments/assets/d56a42a4-9a32-42bf-9f78-19669ef4b58a" />
+
+# Floorplanning and Placement of picorv32a using OpenLANE
+
+This section explains how to run the **floorplan** and **congestion-aware placement** for the `picorv32a` design using the OpenLANE flow, calculate die area, and visualize results in **Magic**.
+
+---
+
+## 1. Running Floorplan for picorv32a Design
+
+### Step 1: Navigate to OpenLANE Directory
+```bash
+cd Desktop/work/tools/openlane_working_dir/openlane
+````
+
+Step 2: Start OpenLANE in Interactive Mode
+````bash
+./flow.tcl -interactive
+````
+Step 3: Load OpenLANE Package
+``` bash
+package require openlane 0.9
+````
+Step 4: Prepare the picorv32a Design
+```bash
+prep -design picorv32a
+```
+<img width="624" height="198" alt="image" src="https://github.com/user-attachments/assets/47ed3f66-1f62-4c7e-b07a-1567a861bdbc" />
+
+<img width="624" height="506" alt="image" src="https://github.com/user-attachments/assets/8a3d9344-c5a4-412f-b93c-6e5319e4c6e6" />
+
+<img width="624" height="457" alt="image" src="https://github.com/user-attachments/assets/f72c726f-e436-4972-b334-db2abdba7a53" />
+
+<img width="407" height="410" alt="image" src="https://github.com/user-attachments/assets/2be76948-c987-4b1e-b779-e90f7b2d26aa" />
+
+Load generated floorplan def in magic tool and explore the floorplan.
+<img width="1036" height="645" alt="image" src="https://github.com/user-attachments/assets/378e7cc7-39de-4fd1-9830-2fdbc5b6d231" />
+
+Equidistant placement of ports & Port layer as set through config.tcl & Decap Cells and Tap Cells
+
+<img width="656" height="125" alt="image" src="https://github.com/user-attachments/assets/49f05ef8-00d4-4756-9ff2-4822bc2f53b0" />
+
+Diagonally equidistant Tap cells
+
+<img width="807" height="705" alt="image" src="https://github.com/user-attachments/assets/39f0b970-1d78-48e0-8491-a5e38a1473b7" />
+
+<img width="655" height="565" alt="image" src="https://github.com/user-attachments/assets/89cc4333-6d38-4e16-8bef-eff0013c145e" />
+
+<img width="1222" height="608" alt="image" src="https://github.com/user-attachments/assets/83fb910b-7de1-408e-9f64-79b63b3727a1" />
+
+### Design library cell using Magic Layout and ngspice characterization
+```
+# Change directory to openlane
+cd Desktop/Openlane
+
+# Clone the repository with custom inverter design
+git clone https://github.com/nickson-jose/vsdstdcelldesign
+
+# Change into repository directory
+cd vsdstdcelldesign
+
+# Copy magic tech file to the repo directory for easy access
+cp /home/user/Desktop/openlane/pdks/sky130A/libs.tech/magic/sky130A.tech .
+
+# Check contents whether everything is present
+ls
+
+# Command to open custom inverter layout in magic
+magic -T sky130A.tech sky130_inv.mag &
+````
+<img width="624" height="298" alt="image" src="https://github.com/user-attachments/assets/7ac0bcd3-b6bc-4411-81a3-ab9bdfa97db9" />
+
+<img width="624" height="142" alt="image" src="https://github.com/user-attachments/assets/20d8cd7e-c84c-4af0-8e10-10eb249e8997" />
+
+<img width="624" height="77" alt="image" src="https://github.com/user-attachments/assets/ffd20d7f-5742-4ec1-99dd-f70bb6cb27f4" />
+
+<img width="484" height="400" alt="image" src="https://github.com/user-attachments/assets/0ff17780-61af-4936-8bcf-929a3e88f49f" />
+
+<img width="380" height="593" alt="Screenshot 2025-12-12 025645" src="https://github.com/user-attachments/assets/8514161e-d7cb-49b0-90fb-d395f7eeb7a1" />
+
+<img width="1125" height="448" alt="Screenshot 2025-12-12 025729" src="https://github.com/user-attachments/assets/a0250cf5-d6fa-45b4-91da-fc88b9a1cae0" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

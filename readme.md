@@ -1007,6 +1007,8 @@ ext2spice
 <img width="847" height="246" alt="image" src="https://github.com/user-attachments/assets/eae0b4db-fbb4-4b98-8630-8f85eaed4269" />
 
 <img width="791" height="586" alt="image" src="https://github.com/user-attachments/assets/0b28d7e6-fd7d-4aba-89d0-2113c273fd99" />
+
+
 ````
 # Command to directly load spice file for simulation to ngspice
 ngspice sky130_inv.spice
@@ -1014,6 +1016,7 @@ ngspice sky130_inv.spice
 # Now that we have entered ngspice with the simulation spice file loaded we just have to load the plot
 plot y vs time a
 `````
+
 <img width="1183" height="643" alt="image" src="https://github.com/user-attachments/assets/0b8d0da4-4524-43d3-9e97-248bfa96ecd2" />
 
 
